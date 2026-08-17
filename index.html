@@ -146,7 +146,6 @@
       ops: { themeClass: 'bg-emerald-700', icon: '🌍', title: 'Community Operations', greeting: 'Welcome, Advocate!', dashboardStrategy: 'You can make an immense impact by proofreading documentation, testing UX, and translating strings.', modules: ['c_entry', 'm_docs_setup', 's_final', 's_directory'] }
     };
 
-    // UPDATED VAULT WITH EMBEDDED HYPERLINKS
     const vault = {
       c_entry: { 
         title: "Community Entry & Legal", type: "MANDATORY", 
@@ -328,7 +327,7 @@
 
       if (supabaseClient) {
         document.getElementById('logSubmitBtn').innerText = "Saving...";
-        const { error } = await supabaseClient.from('volunteers').insert([new } catch(e){}]);
+        const { error } = await supabaseClient.from('volunteers').insert([newEntry]);
         if (error) alert("Supabase Error: " + error.message);
       } else {
         volunteerDatabase.unshift(newEntry);
