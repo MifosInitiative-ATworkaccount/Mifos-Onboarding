@@ -9,13 +9,13 @@
     body { background-color: #f9fafb; font-family: sans-serif; color: #1f2937; overflow: hidden; height: 100vh; margin: 0; }
     .skills-card { background: white; padding: 1.5rem; text-align: center; border: 2px solid #e5e7eb; border-radius: 0.75rem; cursor: pointer; transition: 0.2s; }
     .skills-card.selected { border-color: #0099cc; background-color: #f0f9ff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
-    #appLayout { display: none; } /* Hidden by default */
+    #appLayout { display: none; }
   </style>
 
   <!-- Global Error Catcher -->
   <script>
     window.onerror = function(message, source, lineno, colno, error) {
-      alert("System Error: " + message + " at line " + lineno);
+      console.warn("Silent catch: " + message + " at line " + lineno);
     };
   </script>
 
@@ -30,9 +30,7 @@
 </head>
 <body>
 
-  <!-- ============================================== -->
-  <!-- 1. ASSESSMENT ONRAMP                           -->
-  <!-- ============================================== -->
+  <!-- 1. ASSESSMENT ONRAMP -->
   <div id="onrampOverlay" class="fixed inset-0 bg-blue-900 z-50 overflow-y-auto px-4 py-8 flex justify-center items-center" style="background-color: #006699;">
     <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-8 md:p-10">
       <div class="pb-6 border-b border-gray-100 mb-8">
@@ -42,47 +40,36 @@
 
       <div class="space-y-8">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          
-          <!-- Card 1 -->
           <div class="skills-card" id="card-backend" onclick="selectCard('backend')">
             <input type="radio" name="track" value="backend" id="radio-backend" class="w-5 h-5 mb-2 cursor-pointer">
             <span class="block font-bold text-gray-800">Backend</span>
             <small class="text-gray-500">Java/Spring</small>
           </div>
-          
-          <!-- Card 2 -->
           <div class="skills-card" id="card-frontend" onclick="selectCard('frontend')">
             <input type="radio" name="track" value="frontend" id="radio-frontend" class="w-5 h-5 mb-2 cursor-pointer">
             <span class="block font-bold text-gray-800">Frontend</span>
             <small class="text-gray-500">React/KMP</small>
           </div>
-
-          <!-- Card 3 -->
           <div class="skills-card" id="card-ai" onclick="selectCard('ai')">
             <input type="radio" name="track" value="ai" id="radio-ai" class="w-5 h-5 mb-2 cursor-pointer">
             <span class="block font-bold text-gray-800">AI & Data</span>
             <small class="text-gray-500">Python/ML</small>
           </div>
-
-          <!-- Card 4 -->
           <div class="skills-card" id="card-ops" onclick="selectCard('ops')">
             <input type="radio" name="track" value="ops" id="radio-ops" class="w-5 h-5 mb-2 cursor-pointer">
             <span class="block font-bold text-gray-800">Operations</span>
             <small class="text-gray-500">Docs/UX</small>
           </div>
-
         </div>
 
         <div class="pt-6 border-t border-gray-100 flex justify-end">
-          <button type="button" onclick="startOnboarding()" class="text-white text-lg font-bold py-4 px-10 rounded-xl shadow-lg transition-all" style="background-color: #006699;">Generate My Custom Portal →</button>
+          <button type="button" onclick="startOnboarding()" class="text-white text-lg font-bold py-4 px-10 rounded-xl shadow-lg transition-all hover:bg-blue-800" style="background-color: #006699;">Generate My Custom Portal →</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ============================================== -->
-  <!-- 2. MAIN APPLICATION UI                         -->
-  <!-- ============================================== -->
+  <!-- 2. MAIN APPLICATION UI -->
   <div id="appLayout" class="flex h-screen w-full">
     <aside id="sidebar" class="w-72 bg-gray-900 text-white flex flex-col shadow-2xl z-20 shrink-0">
       <div class="p-6 border-b border-gray-800">
@@ -104,7 +91,7 @@
         <div class="flex items-center space-x-4">
           <span class="text-xs font-bold text-gray-500" id="progressText">0%</span>
           <div class="w-32 bg-gray-200 rounded-full h-2 overflow-hidden">
-            <div id="progressBar" class="bg-green-500 h-2 w-0"></div>
+            <div id="progressBar" class="bg-green-500 h-2 w-0 transition-all duration-500"></div>
           </div>
         </div>
       </header>
@@ -115,9 +102,7 @@
   </div>
 
   <script>
-    // ---------------------------------------------------------
-    // 1. VISUAL CARD SELECTOR
-    // ---------------------------------------------------------
+    // VISUAL CARD SELECTOR
     function selectCard(trackValue) {
       ['backend', 'frontend', 'ai', 'ops'].forEach(t => {
         document.getElementById('radio-' + t).checked = false;
@@ -127,61 +112,113 @@
       document.getElementById('card-' + trackValue).classList.add('selected');
     }
 
-    // ---------------------------------------------------------
-    // 2. SUPABASE INITIALIZATION (Renamed to supabaseClient)
-    // ---------------------------------------------------------
+    // SUPABASE INITIALIZATION
     const supabaseUrl = 'https://gcaegiujykghvppqwdfq.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjYWVnaXVqeWtnaHZwcHF3ZGZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3Mzc2NjksImV4cCI6MjEwMjMxMzY2OX0.39WpRDBs4A-_Ah5Qhpg2rcq7tVVVe17Tk8eE7betEy8';
-    
     let supabaseClient = null;
     let volunteerDatabase = [];
 
     try { 
       if (window.supabase) supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey); 
-    } 
-    catch (e) { console.warn("Supabase failed to init."); }
+    } catch (e) { console.warn("Supabase failed to init."); }
 
     async function fetchVolunteers() {
       if (!supabaseClient) return; 
       try {
-        const { data, error } = await supabaseClient.from('volunteers').select('*').order('id', { ascending: false });
+        const { data } = await supabaseClient.from('volunteers').select('*').order('id', { ascending: false });
         if (data) volunteerDatabase = data;
         if (appState.currentStep === 's_directory') renderDirectoryList("");
-      } catch (e) { console.warn("Fetch failed", e); }
+      } catch (e) { console.warn("Fetch failed"); }
     }
 
-    // ---------------------------------------------------------
-    // 3. STATE & DATA VAULT
-    // ---------------------------------------------------------
+    // STATE & DATA VAULT
     let appState = { isConfigured: false, track: null, currentStep: null, completedSteps: [] };
     
     try {
-      const saved = localStorage.getItem('mifosStateFinal');
+      const saved = localStorage.getItem('mifosLiveState');
       if (saved) appState = JSON.parse(saved);
     } catch(e) {}
 
     const personaData = {
-      backend: { themeClass: 'bg-orange-600', icon: '☕', title: 'Backend Engineering', greeting: 'Welcome, Backend Contributor!', dashboardStrategy: 'We need your help squashing Java bugs and reviewing basic API endpoints.', modules: ['c_entry', 'c_pr', 'm_fineract', 's_final', 's_directory'] },
-      frontend: { themeClass: 'bg-indigo-700', icon: '📱', title: 'Frontend & Mobile', greeting: 'Welcome, Frontend Contributor!', dashboardStrategy: 'We need help fixing UI bugs in the Mifos web and mobile apps.', modules: ['c_entry', 'c_pr', 'm_ui_setup', 's_final', 's_directory'] },
-      ai: { themeClass: 'bg-purple-700', icon: '🧠', title: 'AI & Data Science', greeting: 'Welcome, AI Contributor!', dashboardStrategy: 'You will help us clean financial datasets and test AI chatbot prompts.', modules: ['c_entry', 'c_pr', 'm_ai_architecture', 's_final', 's_directory'] },
-      ops: { themeClass: 'bg-emerald-700', icon: '🌍', title: 'Community Operations', greeting: 'Welcome, Advocate!', dashboardStrategy: 'You can make an immense impact by proofreading documentation.', modules: ['c_entry', 'm_docs_setup', 's_final', 's_directory'] }
+      backend: { themeClass: 'bg-orange-600', icon: '☕', title: 'Backend Engineering', greeting: 'Welcome, Backend Contributor!', dashboardStrategy: 'We need your help squashing Java bugs and reviewing basic API endpoints. Apache Fineract is the core ledger.', modules: ['c_entry', 'c_pr', 'm_fineract', 's_final', 's_directory'] },
+      frontend: { themeClass: 'bg-indigo-700', icon: '📱', title: 'Frontend & Mobile', greeting: 'Welcome, Frontend Contributor!', dashboardStrategy: 'We need help fixing UI bugs in the Mifos web and mobile apps. You will be working directly in Angular or React.', modules: ['c_entry', 'c_pr', 'm_ui_setup', 's_final', 's_directory'] },
+      ai: { themeClass: 'bg-purple-700', icon: '🧠', title: 'AI & Data Science', greeting: 'Welcome, AI Contributor!', dashboardStrategy: 'You will help us clean financial datasets and test AI chatbot prompts to make open banking intelligent.', modules: ['c_entry', 'c_pr', 'm_ai_architecture', 's_final', 's_directory'] },
+      ops: { themeClass: 'bg-emerald-700', icon: '🌍', title: 'Community Operations', greeting: 'Welcome, Advocate!', dashboardStrategy: 'You can make an immense impact by proofreading documentation, testing UX, and translating strings.', modules: ['c_entry', 'm_docs_setup', 's_final', 's_directory'] }
     };
 
+    // UPDATED VAULT WITH EMBEDDED HYPERLINKS
     const vault = {
-      c_entry: { title: "Community Entry & Legal", type: "MANDATORY", content: `<p class="mb-4 text-lg">Join Slack and sign the CLA.</p>` },
-      c_pr: { title: "The Strict Git & PR Workflow", type: "MANDATORY", content: `<p class="mb-4 text-lg">Branch off develop and squash commits.</p>` },
-      m_fineract: { title: "Fineract Setup", type: "TECHNICAL", content: `<p class="mb-4 text-lg">Use Docker Compose to launch Fineract.</p>` },
-      m_ui_setup: { title: "Web App Connect", type: "TECHNICAL", content: `<p class="mb-4 text-lg">Connect your UI directly to demo.mifos.io.</p>` },
-      m_ai_architecture: { title: "Data Pipelines", type: "TECHNICAL", content: `<p class="mb-4 text-lg">Extract JSON payloads via Jupyter Notebooks.</p>` },
-      m_docs_setup: { title: "Wiki Access", type: "COMMUNITY", content: `<p class="mb-4 text-lg">Request Confluence access via mailing list.</p>` }
+      c_entry: { 
+        title: "Community Entry & Legal", type: "MANDATORY", 
+        content: `
+          <p class="mb-4 text-lg">You must join our Slack workspace and sign the legal Contributor License Agreement (CLA) before your code can be merged.</p>
+          <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+            <a href="https://bit.ly/mifos-slack" target="_blank" class="block bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-3 px-4 rounded transition">1. Join Mifos Slack ↗</a>
+            <p class="text-sm text-gray-600 ml-2">Introduce yourself in the <strong>#introductions</strong> channel with your GitHub username.</p>
+            <a href="https://mifos.org/about-us/financial-legal/" target="_blank" class="block bg-green-50 hover:bg-green-100 text-green-800 font-bold py-3 px-4 rounded transition">2. Sign the CLA ↗</a>
+            <p class="text-sm text-gray-600 ml-2">You must provide your exact GitHub username on the legal form.</p>
+          </div>` 
+      },
+      c_pr: { 
+        title: "The Strict Git & PR Workflow", type: "MANDATORY", 
+        content: `
+          <p class="mb-4 text-lg">Mifos uses a strict fork-and-pull workflow. You must branch off <strong>develop</strong> (never master), and squash your commits.</p>
+          <div class="bg-gray-900 p-5 rounded-xl text-green-400 font-mono text-sm overflow-x-auto shadow-inner space-y-2">
+            <span class="text-gray-500"># 1. Clone the core repository</span><br>
+            git clone <a href="https://github.com/apache/fineract" target="_blank" class="text-blue-400 hover:underline">https://github.com/apache/fineract.git</a><br><br>
+            <span class="text-gray-500"># 2. Sync and Branch off develop</span><br>
+            git checkout develop<br>
+            git pull upstream develop<br>
+            git checkout -b MIFOSX-1234<br><br>
+            <span class="text-gray-500"># 3. Commit with Jira ID & Push</span><br>
+            git commit -m "MIFOSX-1234: Fixed bug"<br>
+            git push origin MIFOSX-1234
+          </div>` 
+      },
+      m_fineract: { 
+        title: "Fineract Setup & Code Checks", type: "TECHNICAL", 
+        content: `
+          <p class="mb-4 text-lg">You must be able to run Apache Fineract locally to test your backend changes.</p>
+          <a href="https://github.com/apache/fineract" target="_blank" class="inline-block bg-gray-100 border border-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded mb-4 transition">View Apache Fineract Repo ↗</a>
+          <div class="bg-gray-900 p-4 rounded-lg text-green-400 font-mono text-sm overflow-x-auto shadow-inner mb-6">
+            docker-compose up -d
+          </div>
+          <p class="text-sm text-gray-800 mb-2 font-bold">Mandatory Code Quality Checks (Run before pushing):</p>
+          <div class="bg-gray-900 p-4 rounded-lg text-green-400 font-mono text-sm overflow-x-auto shadow-inner">
+            ./gradlew check<br>
+            ./gradlew licenseFormatMain
+          </div>` 
+      },
+      m_ui_setup: { 
+        title: "Web App & Sandbox Connect", type: "TECHNICAL", 
+        content: `
+          <p class="mb-4 text-lg">Frontend developers don't need to run the Java backend locally. You can point your UI to the public sandbox.</p>
+          <a href="https://github.com/openMF/web-app" target="_blank" class="inline-block bg-gray-100 border border-gray-300 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded mb-4 transition">View Web-App Repo ↗</a>
+          <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded shadow-sm">
+            <h4 class="font-bold text-blue-900 mb-4">Sandbox Credentials</h4>
+            <div class="space-y-2 font-mono text-sm">
+              <p><span class="text-gray-500 w-24 inline-block">Target URL:</span> <a href="https://demo.mifos.io" target="_blank" class="text-blue-600 font-bold hover:underline">https://demo.mifos.io</a></p>
+              <p><span class="text-gray-500 w-24 inline-block">Username:</span> <span class="text-gray-900">mifos</span></p>
+              <p><span class="text-gray-500 w-24 inline-block">Password:</span> <span class="text-gray-900">password</span></p>
+            </div>
+          </div>` 
+      },
+      m_ai_architecture: { 
+        title: "Data Pipelines", type: "TECHNICAL", 
+        content: `<p class="mb-4 text-lg">Review the open-banking API endpoints to extract JSON payloads via Jupyter Notebooks.</p>` 
+      },
+      m_docs_setup: { 
+        title: "Wiki & Operations Access", type: "COMMUNITY", 
+        content: `
+          <p class="mb-4 text-lg">Operations tasks happen across multiple project management tools.</p>
+          <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
+            <a href="https://mifosforge.jira.com/wiki" target="_blank" class="block bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-3 px-4 rounded transition">View Confluence Wiki ↗</a>
+            <a href="https://mifosforge.jira.com/secure/Dashboard.jspa" target="_blank" class="block bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold py-3 px-4 rounded transition">View Jira Boards ↗</a>
+          </div>` 
+      }
     };
 
-    let activePersona = null;
-    let activeModules = [];
-
-    // ---------------------------------------------------------
-    // 4. CORE ENGINE LOGIC
-    // ---------------------------------------------------------
+    // CORE LOGIC
     function startOnboarding() {
       let selectedTrack = null;
       const radios = document.getElementsByName('track');
@@ -201,26 +238,22 @@
     }
 
     function saveAndRender() {
-      try { localStorage.setItem('mifosStateFinal', JSON.stringify(appState)); } catch(e) {}
+      try { localStorage.setItem('mifosLiveState', JSON.stringify(appState)); } catch(e) {}
       renderUI();
     }
 
-    function selectStep(id) {
-      appState.currentStep = id;
-      saveAndRender();
-    }
+    function selectStep(id) { appState.currentStep = id; saveAndRender(); }
 
     function completeStep(id) {
       if (!appState.completedSteps.includes(id)) appState.completedSteps.push(id);
       try { if(window.posthog) posthog.capture('Module Completed', { module: id }); } catch(e){}
-      
       const idx = activeModules.indexOf(id);
       if (idx < activeModules.length - 1) appState.currentStep = activeModules[idx + 1];
       saveAndRender();
     }
 
     function resetApp() {
-      try { localStorage.removeItem('mifosStateFinal'); } catch(e) {}
+      try { localStorage.removeItem('mifosLiveState'); } catch(e) {}
       window.location.reload();
     }
 
@@ -244,9 +277,6 @@
       renderContent();
     }
 
-    // ---------------------------------------------------------
-    // 5. DOM INJECTION
-    // ---------------------------------------------------------
     function renderNavigation() {
       const list = document.getElementById('moduleList');
       list.innerHTML = '';
@@ -255,7 +285,6 @@
         const isActive = appState.currentStep === modId;
         let title = modId === 'dashboard' ? 'Overview' : modId === 's_final' ? 'First Contribution' : modId === 's_directory' ? 'Volunteer Log' : vault[modId].title;
         let classes = isActive ? 'bg-white/20 text-white font-bold' : 'text-white/70 hover:bg-white/10 cursor-pointer';
-
         list.innerHTML += `<li class="flex items-center justify-between p-3 rounded-lg text-sm mb-1 ${classes}" onclick="selectStep('${modId}')"><span>${title}</span><span>${isCompleted ? '✓' : ''}</span></li>`;
       });
     }
@@ -299,7 +328,7 @@
 
       if (supabaseClient) {
         document.getElementById('logSubmitBtn').innerText = "Saving...";
-        const { error } = await supabaseClient.from('volunteers').insert([newEntry]);
+        const { error } = await supabaseClient.from('volunteers').insert([new } catch(e){}]);
         if (error) alert("Supabase Error: " + error.message);
       } else {
         volunteerDatabase.unshift(newEntry);
@@ -315,14 +344,20 @@
     function renderContent() {
       const container = document.getElementById('moduleContainer');
       const isCompleted = appState.completedSteps.includes(appState.currentStep);
-      let btnHTML = `<div class="mt-10"><button type="button" onclick="completeStep('${appState.currentStep}')" class="bg-gray-900 text-white font-bold py-3 px-8 rounded-xl shadow-md ${isCompleted ? 'opacity-50' : ''}" ${isCompleted ? 'disabled' : ''}>${isCompleted ? 'Completed ✓' : 'Mark Complete'}</button></div>`;
+      let btnHTML = `<div class="mt-10"><button type="button" onclick="completeStep('${appState.currentStep}')" class="bg-gray-900 text-white font-bold py-3 px-8 rounded-xl shadow-md ${isCompleted ? 'opacity-50' : 'hover:bg-black'}" ${isCompleted ? 'disabled' : ''}>${isCompleted ? 'Completed ✓' : 'Mark Complete'}</button></div>`;
 
       if (appState.currentStep === 'dashboard') {
         container.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"><div class="text-6xl mb-4">${activePersona.icon}</div><h1 class="text-3xl font-black text-gray-900 tracking-tight">${activePersona.greeting}</h1><p class="text-lg text-gray-500 mt-2">${activePersona.dashboardStrategy}</p>${btnHTML}</div>`;
         return;
       }
       if (appState.currentStep === 's_final') {
-        container.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"><h1 class="text-3xl font-black text-gray-900">Ready to Contribute!</h1><p class="text-lg text-gray-600 mt-2">Go to Jira and claim your first issue.</p>${btnHTML}</div>`;
+        container.innerHTML = `
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+            <h1 class="text-3xl font-black text-gray-900 mb-6">Ready to Contribute!</h1>
+            <p class="text-lg text-gray-600 mb-6">You have completed the onboarding. Go to Jira and claim your first issue.</p>
+            <a href="https://mifosforge.jira.com/secure/Dashboard.jspa" target="_blank" class="inline-block bg-mifos-blue hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-lg transition shadow-md">Open Mifos Jira Board ↗</a>
+            ${btnHTML}
+          </div>`;
         return;
       }
       if (appState.currentStep === 's_directory') {
@@ -334,7 +369,7 @@
                 <div class="space-y-4">
                   <input type="text" id="vol_name" placeholder="Your Name" class="w-full border p-2 rounded">
                   <input type="text" id="vol_issue" placeholder="Jira ID (e.g. MIFOSX-1)" class="w-full border p-2 rounded">
-                  <button type="button" id="logSubmitBtn" onclick="submitLogEntry()" class="w-full bg-blue-600 text-white font-bold py-2 rounded">Submit</button>
+                  <button type="button" id="logSubmitBtn" onclick="submitLogEntry()" class="w-full bg-blue-600 text-white font-bold py-2 rounded hover:bg-blue-700">Submit</button>
                 </div>
             </div>
             <div>
@@ -346,10 +381,9 @@
       }
 
       const modData = vault[appState.currentStep];
-      container.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"><h1 class="text-3xl font-black text-gray-900 tracking-tight mb-4">${modData.title}</h1>${modData.content}${btnHTML}</div>`;
+      container.innerHTML = `<div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8"><h1 class="text-3xl font-black text-gray-900 tracking-tight mb-6">${modData.title}</h1>${modData.content}${btnHTML}</div>`;
     }
 
-    // FIRE IT UP!
     fetchVolunteers();
     renderUI();
   </script>
