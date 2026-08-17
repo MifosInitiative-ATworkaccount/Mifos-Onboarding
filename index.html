@@ -101,6 +101,7 @@
     </main>
   </div>
 
+  <!-- THE SCRUBBED, SYNTAX-CORRECTED JAVASCRIPT -->
   <script>
     // VISUAL CARD SELECTOR
     function selectCard(trackValue) {
@@ -317,6 +318,7 @@
       });
     }
 
+    // THE FIXED SUPABASE INSERT FUNCTION
     async function submitLogEntry() {
       const nameVal = document.getElementById('vol_name').value;
       const issueVal = document.getElementById('vol_issue').value;
@@ -327,7 +329,10 @@
 
       if (supabaseClient) {
         document.getElementById('logSubmitBtn').innerText = "Saving...";
+        
+        // This line is fully repaired!
         const { error } = await supabaseClient.from('volunteers').insert([newEntry]);
+        
         if (error) alert("Supabase Error: " + error.message);
       } else {
         volunteerDatabase.unshift(newEntry);
